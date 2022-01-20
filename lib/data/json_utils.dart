@@ -1,4 +1,4 @@
-import 'package:movie_app/data/movie.dart';
+import 'package:movie_app/data/model/movie.dart';
 
 import 'networking.dart';
 

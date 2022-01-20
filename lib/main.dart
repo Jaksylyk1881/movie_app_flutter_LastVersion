@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movie_app/data/bloc/movie_bloc.dart';
+import 'package:movie_app/data/bloc/movie_state.dart';
 import 'package:movie_app/presentation/screens/first_page.dart';
 
 void main() {
@@ -11,17 +14,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.dark().copyWith(
-        appBarTheme: const AppBarTheme(
-          color: Colors.black,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<MovieBloc>(
+          create: (context) => MovieBloc(MovieEmpty()),
         ),
-        scaffoldBackgroundColor: Colors.black,
-        // This is the theme of your application.
-
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData.dark().copyWith(
+          appBarTheme: const AppBarTheme(
+            color: Colors.black,
+          ),
+          scaffoldBackgroundColor: Colors.black,
+        ),
+        home: const FirstPage(),
       ),
-      home: const FirstPage(),
     );
   }
 }
