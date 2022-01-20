@@ -2,7 +2,7 @@ part of 'first_page_cubit.dart';
 
 abstract class FirstPageState {}
 
-class FirstPageInitial extends FirstPageState {}
+class FirstPageEmpty extends FirstPageState {}
 
 class FirstPageLoading extends FirstPageState {}
 

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/data/bloc/movie_bloc.dart';
 import 'package:movie_app/data/bloc/movie_event.dart';
 import 'package:movie_app/data/bloc/movie_state.dart';
+import 'package:movie_app/data/cubit/first_page_cubit.dart';
 import 'package:movie_app/data/json_utils.dart';
 import 'package:movie_app/presentation/widgets/custom_snackbars.dart';
 import 'package:movie_app/utilits/constants.dart';
@@ -25,22 +26,24 @@ class _FirstPageState extends State<FirstPage> {
     });
   }
 
-  Future<void> onRefresh() async {
-    context
-        .read<MovieBloc>()
-        .add(MovieRefreshEvent(sortType: Sorting.popularity));
-    refreshController.refreshCompleted();
-  }
+  // Future<void> onRefresh() async {
+  //   context
+  //       .read<MovieBloc>()
+  //       .add(MovieRefreshEvent(sortType: Sorting.popularity));
+  //   refreshController.refreshCompleted();
+  // }
 
-  Future<void> onLoading() async {
-    context.read<MovieBloc>().add(MovieLoadEvent(sortType: Sorting.popularity));
-    refreshController.loadComplete();
-  }
+  // Future<void> onLoading() async {
+  //   context.read<MovieBloc>().add(MovieLoadEvent(sortType: Sorting.popularity));
+  //   refreshController.loadComplete();
+  // }
 
   @override
   void initState() {
-    BlocProvider.of<MovieBloc>(context)
-        .add(MovieRefreshEvent(sortType: Sorting.popularity));
+    // BlocProvider.of<MovieBloc>(context)
+    //     .add(MovieRefreshEvent(sortType: Sorting.popularity));
+    
+    BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: Sorting.popularity);
     super.initState();
   }
 
@@ -50,24 +53,24 @@ class _FirstPageState extends State<FirstPage> {
       appBar: AppBar(
         title: const Text('MovieApp'),
       ),
-      body: BlocConsumer<MovieBloc, MovieState>(
+      body: BlocConsumer<FirstPageCubit, FirstPageState>(
         listener: (context, state) {
-          if (state is MovieError) {
+          if (state is FirstPageError) {
             buildErrorCustomSnackBar(context, state.message);
           }
 
-          if (state is MovieLoaded) {
+          if (state is FirstPageLoaded) {
             refreshController.refreshCompleted();
           }
         },
         builder: (context, state) {
-          if (state is MovieEmpty) {
+          if (state is FirstPageEmpty) {
             return const Center(
               child: Text('Пока фильмов нету!'),
             );
           }
 
-          if (state is MovieLoading) {
+          if (state is FirstPageLoading) {
             return const Center(
               child: CircularProgressIndicator(
                 color: Colors.purple,
@@ -75,7 +78,7 @@ class _FirstPageState extends State<FirstPage> {
             );
           }
 
-          if (state is MovieLoaded) {
+          if (state is FirstPageLoaded) {
             return Column(
               children: [
                 Row(
@@ -118,10 +121,10 @@ class _FirstPageState extends State<FirstPage> {
                     controller: refreshController,
                     enablePullUp: true,
                     onRefresh: () async {
-                      onRefresh();
+                      BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: Sorting.popularity);
                     },
                     onLoading: () async {
-                      onLoading();
+                      BlocProvider.of<FirstPageCubit>(context).onLoading(sortType: Sorting.popularity);
                     },
                     child: GridView.builder(
                       itemCount: state.movies.length,
