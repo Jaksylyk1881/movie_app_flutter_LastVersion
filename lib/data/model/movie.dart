@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Movie {
   int _id;
   String _title;
@@ -41,4 +43,20 @@ class Movie {
         json['overview'] as String,
         json['poster_path'] as String);
   }
+  static Map<String, dynamic> toMap(Movie movie) => {
+    'id': movie.id,
+    'title' : movie.title,
+    'original_title':movie.originalTitle,
+    'vote_average':movie.voteAverage,
+    'release_date':movie.releaseDate,
+    'overview':movie.overview,
+    'poster_path':movie.posterPath
+  };
+
+  static String encode(List<Movie> musics) => json.encode(
+    musics
+        .map<Map<String, dynamic>>((movie) => Movie.toMap(movie))
+        .toList(),
+  );
+  static List<Movie> decode(Iterable movies) => movies.map((movie) => Movie.fromJson(movie as Map<String, dynamic>)).toList();
 }

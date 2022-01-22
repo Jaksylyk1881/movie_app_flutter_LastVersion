@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:movie_app/data/bloc/movie_bloc.dart';
-import 'package:movie_app/data/bloc/movie_event.dart';
-import 'package:movie_app/data/bloc/movie_state.dart';
 import 'package:movie_app/data/cubit/first_page_cubit.dart';
 import 'package:movie_app/data/json_utils.dart';
+import 'package:movie_app/presentation/screens/movie_detail.dart';
 import 'package:movie_app/presentation/widgets/custom_snackbars.dart';
 import 'package:movie_app/utilits/constants.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 class FirstPage extends StatefulWidget {
   const FirstPage({Key? key}) : super(key: key);
 
@@ -18,11 +16,18 @@ class FirstPage extends StatefulWidget {
 
 class _FirstPageState extends State<FirstPage> {
   bool isSwitched = false;
+  Sorting sorting = Sorting.popularity;
   final RefreshController refreshController = RefreshController();
 
-  void switchSelect(bool value) {
+  void switchSelect({required bool value}) {
     setState(() {
       isSwitched = value;
+      refreshController.requestRefresh();
+      if(isSwitched){
+        sorting = Sorting.topRated;
+      }else{
+        sorting= Sorting.popularity;
+      }
     });
   }
 
@@ -43,7 +48,7 @@ class _FirstPageState extends State<FirstPage> {
     // BlocProvider.of<MovieBloc>(context)
     //     .add(MovieRefreshEvent(sortType: Sorting.popularity));
     
-    BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: Sorting.popularity);
+    BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: sorting);
     super.initState();
   }
 
@@ -52,6 +57,21 @@ class _FirstPageState extends State<FirstPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('MovieApp'),
+        actions: [
+          PopupMenuButton(itemBuilder: (context){
+            return[
+              const PopupMenuItem<int>(value: 0,child: Text('Delete'),),
+              const PopupMenuItem<int>(value: 1,child: Text('Refresh'),),
+            ];
+          },
+              onSelected:(value){
+                if(value == 0){
+                  BlocProvider.of<FirstPageCubit>(context).onDelete();
+                }else if(value == 1) {
+                  BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: sorting);
+                }
+              }),
+        ],
       ),
       body: BlocConsumer<FirstPageCubit, FirstPageState>(
         listener: (context, state) {
@@ -86,7 +106,7 @@ class _FirstPageState extends State<FirstPage> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        switchSelect(false);
+                        switchSelect(value: false);
                         // getData(Sorting.popularity, 1);
                       },
                       child: Text(
@@ -99,12 +119,12 @@ class _FirstPageState extends State<FirstPage> {
                     Switch(
                       value: isSwitched,
                       onChanged: (value) {
-                        switchSelect(value);
+                        switchSelect(value: value);
                       },
                     ),
                     GestureDetector(
                       onTap: () {
-                        switchSelect(true);
+                        switchSelect(value: true);
                         // getData(Sorting.topRated, 1);
                       },
                       child: Text(
@@ -121,10 +141,11 @@ class _FirstPageState extends State<FirstPage> {
                     controller: refreshController,
                     enablePullUp: true,
                     onRefresh: () async {
-                      BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: Sorting.popularity);
+                      BlocProvider.of<FirstPageCubit>(context).onRefresh(sortType: sorting);
                     },
                     onLoading: () async {
-                      BlocProvider.of<FirstPageCubit>(context).onLoading(sortType: Sorting.popularity);
+                      BlocProvider.of<FirstPageCubit>(context).onLoading(sortType: sorting);
+                      refreshController.loadComplete();
                     },
                     child: GridView.builder(
                       itemCount: state.movies.length,
@@ -135,9 +156,21 @@ class _FirstPageState extends State<FirstPage> {
                         childAspectRatio: 185 / 278,
                       ),
                       itemBuilder: (context, index) {
-                        return Image.network(
-                          '$kImageBaseUrl$kSmallPosterSize${state.movies[index].posterPath}',
-                          fit: BoxFit.fill,
+                        return GestureDetector(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>MovieDetail(movie: state.movies[index])));
+                          },
+                          child: SizedBox(
+                            height: 150,
+                            child: BlurHash(
+                              hash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+                              image: '$kImageBaseUrl$kSmallPosterSize${state.movies[index].posterPath}',
+                            ),
+                          )
+                          // Image.network(
+                          //   '$kImageBaseUrl$kSmallPosterSize${state.movies[index].posterPath}',
+                          //   fit: BoxFit.fill,
+                          // ),
                         );
                       },
                     ), // MoviesWidget(movies: movies),

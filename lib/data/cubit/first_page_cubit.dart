@@ -1,5 +1,4 @@
 import 'dart:developer';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/data/json_utils.dart';
 import 'package:movie_app/data/model/movie.dart';
@@ -11,10 +10,20 @@ class FirstPageCubit extends Cubit<FirstPageState> {
   int _currentPage = 1;
   List<Movie> _movies = [];
 
+  Future<void> onDelete()async{
+    try{
+      emit(FirstPageEmpty());
+    }catch(e){
+      log('$e');
+      emit(FirstPageError(message: '$e'));
+    }
+  }
+
   Future<void> onRefresh({required Sorting sortType}) async {
     try {
       emit(FirstPageLoading());
-      final data = await JsonUtils().getMovies(sortType, 1);
+      _currentPage = 1;
+      final data = await JsonUtils().getMovies(sortType, _currentPage);
       log("getData:: $data, page:: $_currentPage");
       _movies = data;
       _currentPage++;

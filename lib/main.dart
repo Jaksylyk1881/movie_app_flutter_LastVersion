@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:movie_app/data/bloc/movie_bloc.dart';
 import 'package:movie_app/data/bloc/movie_state.dart';
 import 'package:movie_app/data/cubit/first_page_cubit.dart';
+import 'package:movie_app/data/cubit/movie_detail_cubit.dart';
 import 'package:movie_app/presentation/screens/first_page.dart';
 
 void main() {
@@ -21,6 +22,7 @@ class MyApp extends StatelessWidget {
           create: (context) => MovieBloc(MovieEmpty()),
         ),
         BlocProvider<FirstPageCubit>(create: (context) => FirstPageCubit()),
+        BlocProvider<MovieDetailCubit>(create: (context) => MovieDetailCubit())
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
