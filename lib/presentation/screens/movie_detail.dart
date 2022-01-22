@@ -26,7 +26,7 @@ class _MovieDetailState extends State<MovieDetail> {
 
  Future<void> getSharedPreference() async {
    prefs = await SharedPreferences.getInstance();
-   final Iterable musicsString = prefs.getString('fav_movies') ;
+   final Iterable musicsString = prefs.getString('fav_movies') as Iterable ;
    if(musicsString!=null){
      movies = Movie.decode(musicsString);
      for(Movie m in movies!){
